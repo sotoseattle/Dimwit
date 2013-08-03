@@ -8,20 +8,19 @@ epsilon = 0.000001
 def setup_func_basic():
     global l
     data = pd.read_csv('./tests/log_data_basic.txt')
-    X = data.ix[:, 0:2]
-    y = data.ix[:, 2]
-    l = Logysterical(X, y, 0.0)
+    tr = {}
+    tr['X'] = data.ix[:, 0:2]
+    tr['y'] = data.ix[:, 2]
+    l = Logysterical(tr)
 
 def setup_func_reg():
-    global train
-    train = {}
+    global tr
+    tr = {}
     data = pd.read_csv('./tests/log_data_reg.txt')
     x = np.array(data.ix[:, 0:2])
-    X1 = x[:,0]
-    X2 = x[:,1]
-    train['X'] = Logysterical.mapfeature(X1, X2)
-    train['y'] = np.array(data.ix[:, 2])
-    
+    tr['X'] = Logysterical.mapfeature(x[:,0], x[:,1])
+    tr['y'] = np.array(data.ix[:, 2])
+    tr['lam'] = 1.0
 
 @with_setup(setup_func_basic)
 def test_J_with_zero_theta():
@@ -52,7 +51,7 @@ def test_prediction():
 def test_accuracy():
     ini_thetas = np.array([0,0,0])
     opt_thetas = l.optimizeThetas(ini_thetas)
-    assert l.accuracy(l.Xt, l.yt) - 0.89 < epsilon
+    assert l.accuracy(l.tr['X'], l.tr['y']) - 0.89 < epsilon
 
 
 ### WITH REGULARIZATION
@@ -60,8 +59,8 @@ def test_accuracy():
 
 @with_setup(setup_func_reg)
 def test_J_with_lam_and_zero_theta():
-    l = Logysterical(train['X'], train['y'], 1.0)
-    theta = np.zeros((l.Xt.shape[1],1))
+    l = Logysterical(tr)
+    theta = np.zeros((l.tr['X'].shape[1],1))
     assert l.costFunction(theta) - 0.69314718056 < epsilon
 
 def test_mapping_features():
@@ -77,12 +76,14 @@ def test_mapping_features():
 
 @with_setup(setup_func_reg)
 def test_optimize_thetas_reg():
-    l = Logysterical(train['X'], train['y'], 1.0)
-    ini_thetas = np.zeros((l.Xt.shape[1],1))
-    diff = l.optimizeThetas(ini_thetas) - np.array([1.273005, 0.624876, 1.177376, -2.020142, -0.912616, -1.429907, 0.125668, -0.368551, -0.360033, -0.171068, -1.460894, -0.052499, -0.618889, -0.273745, -1.192301, -0.240993, -0.207934, -0.047224, -0.278327, -0.296602, -0.453957, -1.045511, 0.026463, -0.294330, 0.014381, -0.328703, -0.143796, -0.924883])
+    l = Logysterical(tr, None)
+    ini_thetas = np.zeros((l.tr['X'].shape[1],1))
+    pp = l.optimizeThetas(ini_thetas)
+    print pp
+    diff = pp - np.array([1.273005, 0.624876, 1.177376, -2.020142, -0.912616, -1.429907, 0.125668, -0.368551, -0.360033, -0.171068, -1.460894, -0.052499, -0.618889, -0.273745, -1.192301, -0.240993, -0.207934, -0.047224, -0.278327, -0.296602, -0.453957, -1.045511, 0.026463, -0.294330, 0.014381, -0.328703, -0.143796, -0.924883])
     for e in diff:
-        assert e < epsilon
-
+        assert e < 0.01
+    
 
 
     
