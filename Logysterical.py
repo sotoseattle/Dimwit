@@ -10,11 +10,12 @@ class Logysterical(object):
     
     def __init__(self, train_data={}, thetas=None):
         self.tr = {}
-        self.tr['m'], n = train_data['X'].shape
-        self.tr['n'] = n+1
-        self.tr['X'] = np.column_stack([np.ones((self.tr['m'],1)), train_data['X']])
-        self.tr['y'] = train_data['y']
-        self.tr['lam'] = (train_data['lam'] if 'lam' in train_data else 0.0)
+        if 'X' in train_data:
+            self.tr['m'], n = train_data['X'].shape
+            self.tr['n'] = n+1
+            self.tr['X'] = np.column_stack([np.ones((self.tr['m'],1)), train_data['X']])
+            self.tr['y'] = train_data['y']
+            self.tr['lam'] = (train_data['lam'] if 'lam' in train_data else 0.0)
         self.thetas = (thetas if thetas!=None else np.zeros((self.tr['n'], 1)))
     
     def costFunction(self, theta):
@@ -66,3 +67,4 @@ class Logysterical(object):
                 Xt = np.column_stack([Xt, np.power(X1, i-j) * np.power(X2, j)])
         return Xt[:,1::] # first column not needed
     
+

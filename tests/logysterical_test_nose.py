@@ -7,7 +7,7 @@ epsilon = 0.000001
 
 def setup_func_basic():
     global l
-    data = pd.read_csv('./tests/log_data_basic.txt')
+    data = pd.read_csv('./tests/data/log_data_basic.txt')
     tr = {}
     tr['X'] = data.ix[:, 0:2]
     tr['y'] = data.ix[:, 2]
@@ -16,7 +16,7 @@ def setup_func_basic():
 def setup_func_reg():
     global tr
     tr = {}
-    data = pd.read_csv('./tests/log_data_reg.txt')
+    data = pd.read_csv('./tests/data/log_data_reg.txt')
     x = np.array(data.ix[:, 0:2])
     tr['X'] = Logysterical.mapfeature(x[:,0], x[:,1])
     tr['y'] = np.array(data.ix[:, 2])
@@ -64,7 +64,7 @@ def test_J_with_lam_and_zero_theta():
     assert l.costFunction(theta) - 0.69314718056 < epsilon
 
 def test_mapping_features():
-    data = pd.read_csv('./tests/log_data_reg.txt')
+    data = pd.read_csv('./tests/data/log_data_reg.txt')
     x = np.array(data.ix[:, 0:2])
     X1 = x[:,0]
     X2 = x[:,1]
