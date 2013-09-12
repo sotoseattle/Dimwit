@@ -18,14 +18,16 @@ class Logysterical(object):
             self.tr['lam'] = (train_data['lam'] if 'lam' in train_data else 0.0)
         self.thetas = (thetas if thetas!=None else np.zeros((self.tr['n'], 1)))
     
-    def costFunction(self, theta):
+    def j(self, theta):
+        '''cost function J(theta)'''
         prediction = Logysterical.sigmoid(np.dot(self.tr['X'], theta))
         J = (-self.tr['y'].T.dot(np.log(prediction)) -        \
             (1-self.tr['y']).T.dot(np.log(1-prediction)) +    \
             (self.tr['lam']/2.0) * np.sum(np.power(theta[1::], 2)))/self.tr['m']
         return J
     
-    def gradientFunction(self, theta):
+    def v(self, theta):
+        '''gradient function, first partial derivation of j(theta)'''
         prediction = Logysterical.sigmoid(np.dot(self.tr['X'], theta))
         regu = np.hstack([[0],theta[1::,]*(self.tr['lam'])])
         grad = ((prediction - self.tr['y']).dot(self.tr['X']) + regu)/self.tr['m']
@@ -33,19 +35,18 @@ class Logysterical(object):
     
     def optimizeThetas(self, theta0):
         '''derive thetas from training data (tr) using bfgs algorithm'''
-        self.thetas = fmin_bfgs(self.costFunction, theta0, \
-            self.gradientFunction, maxiter=4000)
+        self.thetas = fmin_bfgs(self.j, theta0, self.v, maxiter=4000)
         return self.thetas
     
-    def predict(self, x):
-        '''probability of input x as vector using own thetas'''
+    def h(self, x):
+        '''hypothesis function h(x: thetas) = probability of input x as vector using own thetas'''
         return Logysterical.sigmoid(x.dot(self.thetas))
     
     def accuracy(self, x, y):
         '''accuracy of set h(x) as measured against obsserved outcomes y'''
         acc = 0.0
         for i in range(self.tr['m']):
-            p = self.predict(x[i,::])
+            p = self.h(x[i,::])
             if (p>0.5 and y[i]==1) or (p<=0.5 and y[i]==0):
                     acc += 1
         return acc/self.tr['m']

@@ -25,12 +25,12 @@ def setup_func_reg():
 @with_setup(setup_func_basic)
 def test_J_with_zero_theta():
     theta = np.array([0,0,0])
-    assert l.costFunction(theta) - 0.69314718056 < epsilon
+    assert l.j(theta) - 0.69314718056 < epsilon
 
 @with_setup(setup_func_basic)    
 def test_gradient_with_zero_theta():
     theta = np.array([0,0,0])
-    diff = l.gradientFunction(theta) - np.array([-0.1, -12.009217, -11.262842])
+    diff = l.v(theta) - np.array([-0.1, -12.009217, -11.262842])
     assert diff.max() < epsilon
 
 @with_setup(setup_func_basic)
@@ -44,7 +44,7 @@ def test_optimize_thetas():
 def test_prediction():
     ini_thetas = np.array([0,0,0])
     opt_thetas = l.optimizeThetas(ini_thetas)
-    prob = l.predict(np.array([1, 45, 85]))
+    prob = l.h(np.array([1, 45, 85]))
     assert prob - 0.776290570502 < epsilon
 
 @with_setup(setup_func_basic)    
@@ -61,7 +61,7 @@ def test_accuracy():
 def test_J_with_lam_and_zero_theta():
     l = Logysterical(tr)
     theta = np.zeros((l.tr['X'].shape[1],1))
-    assert l.costFunction(theta) - 0.69314718056 < epsilon
+    assert l.j(theta) - 0.69314718056 < epsilon
 
 def test_mapping_features():
     data = pd.read_csv('./tests/data/log_data_reg.txt')
