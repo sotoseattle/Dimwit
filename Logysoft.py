@@ -2,117 +2,77 @@ import math
 import pandas as pd
 import numpy as np
 import scipy as sc
-from scipy.optimize import fmin_bfgs
+from scipy.optimize import fmin_l_bfgs_b
 
 
-class Logysoft(object):
-    '''Softmax Logistic Regression with regularization and BFGS optimization'''
+# MODULE FOR SOFTMAX REGRESSION
+def groundTruth(y, numLabels):
+    '''Expanded Y Matrix, I.e. label: 3 => [0,0,1,0,0,0,0,0,0,0]'''
+    m = y.shape[0]
+    groundTruth = np.zeros((m, numLabels)).astype('float64')
+    for row in range(m):
+        col = y[row,0] # need to push all so index 0!
+        groundTruth[row,col-1] = 1
+    return groundTruth
+
+def predict(x, thetas):
+    x = np.atleast_2d(x)
+    return h(thetas, x)
+
+# COST & GRADIENT FUNCTIONS
+def h(thetas, x):
+    '''hypothesys f() assumes x is at least 2d array, and thetas well formed'''
+    H = thetas.dot(x.T)
+    H = H - np.amax(H, axis=0)
+    H = np.exp(H).T
+    suma = np.sum(H, axis=1).reshape((-1,1))
+    H = np.divide(H, suma)
+    return H
+
+def j(thetas, x, groundTruth, numLabels, regul_lambda):
+    '''cost function'''
+    thetas = thetas.reshape(numLabels, -1)
+    m = x.shape[0]
+    hx = h(thetas, x)
+    b = groundTruth*(np.log(hx))
+    lambdaEffect = (regul_lambda/2)*np.sum(np.sum(thetas**2))
+    J = -np.sum(np.sum(b))/m + lambdaEffect
+    return J
+
+def v(thetas, x, groundTruth, numLabels, regul_lambda):
+    '''gradient function, first partial derivation of j(theta)'''
+    thetas = thetas.reshape(numLabels, -1)
+    hx = h(thetas, x)
+    m = x.shape[0]
+    grad = ((groundTruth-hx).T.dot(x))/(-m) + (regul_lambda*thetas)
+    grad = grad.flatten(0)
+    return grad
+
+def grad_by_hand(thetas, x, groundTruth, numLabels, regul_lambda):
+    epsilon = 1e-4
+    t = thetas.flatten(0)
+    n = t.size
+    grad = np.ones((n,)).astype('float64')
+    for i in range(n):
+        t1 = np.copy(t)
+        t2 = np.copy(t)
+        t1[i] += epsilon
+        t2[i] -= epsilon
+        a = j(t1, x, groundTruth, numLabels, regul_lambda)
+        b = j(t2, x, groundTruth, numLabels, regul_lambda)
+        grad[i] = (a-b)/(2*epsilon)
+    return grad
+
+def optimizeThetas(tinit, X_train, GT, numLabels, l):
+    '''derive thetas from training data (tr) using bfgs algorithm'''
+    def f(w):
+        return j(w, X_train, GT, numLabels, l)
+    def fprime(w):
+        return v(w, X_train, GT, numLabels, l)
+
+    [thetas, f, d] = fmin_l_bfgs_b(func=f, x0=tinit, fprime=fprime, maxiter=400)
+    print thetas[0:10]
+    print f
+    print d
+    return thetas
     
-    def __init__(self, train_data={}, thetas=None, numLabels=None):
-        self.tr = {}
-        self.tr['numLabels'] = numLabels
-        if 'X' in train_data:
-            self.tr['m'], n = train_data['X'].shape
-            self.tr['n'] = n+1
-            self.tr['X'] = np.column_stack([np.ones((self.tr['m'],1)), train_data['X']])
-            self.tr['y'] = train_data['y']
-            self.tr['lam'] = (train_data['lam'] if 'lam' in train_data else 0.0)
-            self.tr['groundTruth'] = np.zeros((self.tr['numLabels'], self.tr['m']))
-            for col, row in enumerate(self.tr['y']):
-                self.tr['groundTruth'][row, col] = 1
-        print '------>x', self.tr['X'].shape
-        print '------>n', self.tr['n']
-        print '------>m', self.tr['m']
-        # BAD self.thetas = (thetas if thetas!=None else np.zeros((self.tr['n'], 1)))
-        self.thetas = (thetas if thetas!=None else np.zeros((10, l.tr['n'])))
-    
-    def h(self, x, t=None):
-        '''hypothesys function h(x; theta)'''
-        
-        #print '=> t', t.shape
-        if t==None:
-            thetas = self.thetas
-        else:
-            thetas = t.reshape((10, self.tr['n']))
-        
-        #print thetas.shape,'x',x.shape
-        z = thetas.dot(x)
-        
-        #####
-        #max = np.amax(z, axis=0)
-        z = z - np.amax(z, axis=0)
-        e = np.exp(z)
-        #e = np.exp(z - np.amax(z))
-        
-        return e/sum(e)
-    
-    def j(self, specificThetas):
-        '''cost function'''
-        #print '.......start J'
-        hx = self.h(np.transpose(self.tr['X']), specificThetas)
-        b = self.tr['groundTruth'] * np.log(hx)
-        J = -np.mean(np.sum(b))
-        #print '.......end J'
-        return J
-    
-    def v(self, specificThetas):
-        '''gradient function, first partial derivation of j(theta)'''
-        
-        #print '.......start V'
-        
-        #((hx-y)*data')/m
-        t = specificThetas
-        x = np.transpose(self.tr['X'])
-        hx = self.h(x, t)
-        
-        #print 'b', hx.shape, '-', self.tr['groundTruth'].shape
-        
-        #b = hx - self.tr['groundTruth']
-        #print 'bbbb', b.shape
-        #print 'x', tr['X'].shape
-        
-        #a = np.dot(b, self.tr['X'])
-        #a = a/self.tr['m']
-        #print 'a', a.shape
-        grad = ((hx - self.tr['groundTruth']).dot(self.tr['X']))/self.tr['m']
-        
-        grad = grad.reshape(-1)
-        #print '.......end V', grad.shape
-        return grad
-    
-    
-    def optimizeThetas(self, theta0):
-        '''derive thetas from training data (tr) using bfgs algorithm'''
-        self.thetas = fmin_bfgs(self.j, theta0, self.v, maxiter=10)
-        return self.thetas
-
-
-    
-
-data = pd.read_csv('./examples/numberOCR/train.csv', header=1)
-
-tr = {}
-tr['X'] = data.ix[:, 1::]
-tr['y'] = data.ix[:, 0]
-
-t = 0.005* np.random.rand(10, 785)
-
-l = Logysoft(tr, thetas = t,  numLabels = 10)
-
-
-#print l.j(t)
-#print l.v(t)
-#print sol.shape
-#print sol[5, 20:39]
-#print sum(sum(sol))
-#print l.tr['n']
-
-#ini_thetas = np.zeros((10, l.tr['n']))
-#ini_thetas = 0.005 * np.random.rand(10, l.tr['n'])
-ini_thetas = 0.005 * np.random.rand(10 * l.tr['n'], 1);
-
-print 'ini_thetas', ini_thetas.shape
-opt_thetas = l.optimizeThetas(ini_thetas)
-print opt_thetas
-print opt_thetas[:, 1]
-
