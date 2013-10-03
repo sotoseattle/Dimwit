@@ -7,12 +7,11 @@ from scipy.optimize import fmin_l_bfgs_b
 
 # MODULE FOR SOFTMAX REGRESSION
 def groundTruth(y, numLabels):
-    '''Expanded Y Matrix, I.e. label: 3 => [0,0,1,0,0,0,0,0,0,0]'''
+    '''Expanded Y Matrix, I.e. label: 3 => [0,0,0,1,0,0,0,0,0,0]'''
     m = y.shape[0]
     groundTruth = np.zeros((m, numLabels)).astype('float64')
     for row in range(m):
-        col = y[row,0] # need to push all so index 0!
-        groundTruth[row,col-1] = 1
+        groundTruth[row,y[row,0]] = 1
     return groundTruth
 
 def predict(x, thetas):
