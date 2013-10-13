@@ -6,19 +6,7 @@ from scipy.optimize import fmin_l_bfgs_b
 
 
 # MODULE FOR SOFTMAX REGRESSION
-def groundTruth(y, numLabels):
-    '''Expanded Y Matrix, I.e. label: 3 => [0,0,0,1,0,0,0,0,0,0]'''
-    m = y.shape[0]
-    groundTruth = np.zeros((m, numLabels)).astype('float64')
-    for row in range(m):
-        groundTruth[row,y[row,0]] = 1
-    return groundTruth
 
-def predict(x, thetas):
-    x = np.atleast_2d(x)
-    return h(thetas, x)
-
-# COST & GRADIENT FUNCTIONS
 def h(thetas, x):
     '''hypothesys f() assumes x is at least 2d array, and thetas well formed'''
     H = thetas.dot(x.T)
@@ -27,6 +15,14 @@ def h(thetas, x):
     suma = np.sum(H, axis=1).reshape((-1,1))
     H = np.divide(H, suma)
     return H
+
+def groundTruth(y, numLabels):
+    '''Expanded Y Matrix, I.e. label: 3 => [0,0,0,1,0,0,0,0,0,0]'''
+    m = y.shape[0]
+    groundTruth = np.zeros((m, numLabels))
+    for row in range(m):
+        groundTruth[row, y[row,0]] = 1
+    return groundTruth
 
 def j(thetas, x, groundTruth, numLabels, regul_lambda):
     '''cost function'''
@@ -62,7 +58,7 @@ def grad_by_hand(thetas, x, groundTruth, numLabels, regul_lambda):
         grad[i] = (a-b)/(2*epsilon)
     return grad
 
-def optimizeThetas(tinit, X_train, GT, numLabels, l):
+def optimizeThetas(tinit, X_train, GT, numLabels, l, visual=True):
     '''derive thetas from training data (tr) using bfgs algorithm'''
     def f(w):
         return j(w, X_train, GT, numLabels, l)
@@ -70,8 +66,9 @@ def optimizeThetas(tinit, X_train, GT, numLabels, l):
         return v(w, X_train, GT, numLabels, l)
 
     [thetas, f, d] = fmin_l_bfgs_b(func=f, x0=tinit, fprime=fprime, maxiter=400)
-    print thetas[0:10]
-    print f
-    print d
+    if visual:
+        print thetas[0:10]
+        print f
+        print d
     return thetas
     

@@ -53,7 +53,7 @@ def test_2D_to_1D():
 	assert tr['xnorm'].shape == tr['X'].shape
 	assert np.allclose(np.sum(tr['xnorm'].mean(axis=0)), 0.0, atol=0.000001)
 	# pca computation
-	U = pca(tr['xnorm'])
+	[U,S] = pca(tr['xnorm'])
 	assert np.allclose(U, np.array([[-0.70710678, -0.70710678],[-0.70710678, 0.70710678]]))
 	# reduction
 	Z = shrink(tr['xnorm'], U, 1)
@@ -81,7 +81,7 @@ def test_shrink_faces():
 	imageit(tr['xnorm'][56,:], 'FACE_Orig.png', 32) # we choose example 56
 
 	# pca computation
-	U = pca(tr['xnorm'])
+	[U,S] = pca(tr['xnorm'])
 	assert U.shape == (1024,1024)
 	assert np.allclose(U.dot(U.T), np.eye(1024))
 	# reduction
@@ -118,7 +118,7 @@ def test_OCR_numbers():
 	imageit(tr['xnorm'][56,:], 'OCR_Orig.png', 28) # we choose example 56
 	
 	# pca computation
-	U = pca(tr['xnorm'])
+	[U,S] = pca(tr['xnorm'])
 	assert U.shape == (784, 784)
 	assert np.allclose(U.dot(U.T), np.eye(784))
 	# reduction

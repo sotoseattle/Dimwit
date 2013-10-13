@@ -19,7 +19,7 @@ def pca(X):
 	print 'Sigma shape should be nxn:', Sigma.shape
 	print 'U will be m x ', np.min(Sigma.shape)
 	U, S, V = np.linalg.svd(Sigma, full_matrices=False)
-	return U
+	return [U, S]
 
 def shrink(example_norm, U, dimensions):
 	Ureduce = U[:, 0:dimensions]
