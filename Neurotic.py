@@ -67,20 +67,20 @@ def h(thetas_rolled, layers, one_x):
 def j(thetas_rolled, layers, x, y, lam):
     m,n = x.shape
     thetas = unroll_thetas(n, layers, thetas_rolled)
-    y_bloat = groundTruth(np.array(y), 10)
+    y_bloat = groundTruth(np.array(y), layers[-1])
     a, r = x, 0.
     for t in thetas:
         a = np.hstack([np.ones((m,1)),a])
         a = sigmoid(a.dot(t.T))
         r += np.sum(t[:,1:]**2)    
-    J = (np.sum(-y_bloat*log(a) - (1-y_bloat)*log(1-a)) + (r*lam)/2)/m
+    J = (np.sum(-y_bloat*np.log(a) - (1-y_bloat)*np.log(1-a)) + (r*lam)/2)/m
     return J
 
 def v(thetas_rolled, layers, x, y, lam):
     m,n = x.shape
     thetas = unroll_thetas(n, layers, thetas_rolled)
     num_thetas = len(layers)
-    y_bloat = groundTruth(np.array(y), 10)
+    y_bloat = groundTruth(np.array(y), layers[-1])
     
     # forward => fill lists of 'activations' and 'z'
     a, z = [x], [None]
