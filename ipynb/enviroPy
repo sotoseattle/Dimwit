@@ -1,0 +1,13 @@
+# Toying with tmux and dimwit files
+
+# Create a new tmux session called iPython, and a window called nb_server. Then detach
+tmux new-session -s iPython -n nb_server -d
+
+# Start the notebook server in session
+tmux send-keys -t iPython 'ipython notebook --pylab inline' C-m
+
+# split window
+tmux split-window -v -p 75 -t iPython
+#tmux select-layout -t iPython main-horizontal
+
+tmux attach -t iPython

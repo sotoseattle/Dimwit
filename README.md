@@ -4,15 +4,25 @@
 
 Work in progress
 
-## LOGISTIC REGRESSION
 
-### SOFTMAX MULTIPLE CLASSIFIER
+The MIT License
 
-The key is the format in which we input the training data and the thetas.
+Copyright (c) 2013 Ji Park
 
-Give k possible labels for classification and n features (i.e. 128 pixels in input image):
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Thetas should be a numpy array with k rows and n+1 columns. For each row the first element is the bias theta (for x = 1), followed by the corresponding n theta parameters. In this manner for each possible label we have all the parameters in a row (including the bias).
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-A given input x should be formatted as a numpy array of n+1 elements. The first element a constant 1 (for the biased parameter)
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

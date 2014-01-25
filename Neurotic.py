@@ -108,7 +108,7 @@ def optimizeThetas(tinit, layers, x, y, lam, visual=True):
     def fprime(w):
         return v(w, layers, x, y, lam)
     
-    [thetas, f, d] = fmin_l_bfgs_b(func=f, x0=tinit, fprime=fprime, maxiter=50)
+    [thetas, f, d] = fmin_l_bfgs_b(func=f, x0=tinit, fprime=fprime, maxiter=400)
     if visual:
         print thetas[0:10]
         print f
