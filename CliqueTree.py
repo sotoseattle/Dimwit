@@ -27,7 +27,6 @@ class CliqueTree(UndGraph, object):
         # prune, compact and initialize resulting tree
         # don't overprune or you wont be able to pass mssg!
         keepPruning = True
-        #while keepPruning and self.V>2:
         while keepPruning:
             keepPruning = self.pruneNode()
             if not len([b for b in self.box if b])>2:

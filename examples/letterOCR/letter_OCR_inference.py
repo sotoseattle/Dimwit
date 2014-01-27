@@ -159,24 +159,23 @@ def MAP_Word(word):
     for i in range(chars-2):
         f.append(tripletFactor(vall[i], vall[i+1], vall[i+2]))
 
+    # choose the top two similar images
     ss = []
     for i in range(chars):
         for j in range(i+1, chars):
             ss.append([vall[i], vall[j], similarity(word['img'][i], word['img'][j])])
-    
     ss = sorted(ss, key = lambda x: x[2])
     top1 = ss.pop()
+    print top1
     f.append(image_simil_factor(top1[0], top1[1], top1[2]))
     top2 = ss.pop()
+    print top2
     f.append(image_simil_factor(top2[0], top2[1], top2[2]))
     #alist.sort(key=lambda x: x.foo)
     #f1.append(image_simil_factor(vall[i], vall[j], word['img'][i], word['img'][j]))
-    
-
-    print 'number of factors', len(f)
-
+    print '---', len(f)
     cc = CliqueTree.CliqueTree(f)
-    #print cc
+    print cc
     cc.calibrate(isMax=True)
     
     # BEWARE I AM assuming that I get exact unambiguous marginals
@@ -221,7 +220,8 @@ def score():
     print 'letters:', chars_ok, (100.*chars_ok/tot_chars),'%'
     pass
 
-score()
+#score_singletons()
+#score()
 
 def inspect(word):
     chars = len(word['gT'])
@@ -237,8 +237,10 @@ def inspect(word):
         f.append(tripletFactor(vall[i], vall[i+1], vall[i+2]))
     return CliqueTree.CliqueTree(f)
     
-#cc = inspect(allWords[68])
-#print cc
+cc = inspect(allWords[0])
+print cc
+print [alpha[e] for e in MAP_Word(allWords[0])]
+
 
 ### CHECK CALIBRATION (IMPRESSIVE!)
 # Check that the exact marginal over a var in adjacent nodes (beliefs) is the same
